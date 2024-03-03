@@ -1,0 +1,14 @@
+# List the packages and versions needed to run InMemoryKeyValueStore.py
+
+# For example, if InMemoryKeyValueStore.py uses the following packages:
+# - python-dotenv
+# - pydantic
+# - uvicorn
+# Then the requirements.txt file might look like this:
+
+python-dotenv==0.19.2
+pydantic==1.8.2
+uvicorn==0.14.0
+
+# To install the requirements from this file, use the following command: 
+# pip install -r requirements.txt
