@@ -143,24 +143,24 @@ I hope you find this solution helpful! Let me know if you have any questions or 
 
 Here are some questions from Yen as well as some clarification and additional information:
 
--Q: Some notes on key/value visibility conditions during a transaction (for example, what is the behavior when multiple clients are trying to access the same key and one client connection is in the middle of a transaction and has modified a key)?
+- Q: Some notes on key/value visibility conditions during a transaction (for example, what is the behavior when multiple clients are trying to access the same key and one client connection is in the middle of a transaction and has modified a key)?
 
--A: The server utilizes a lock to ensure that only one thread can access the dictionary at a time. This means that if one client connection is in the middle of a transaction and has modified a key, any other client connection that tries to access the same key will be blocked until the transaction is committed or rolled back. Once the transaction is commited or rolled back, any changes will then be visible to other clients. 
+- A: The server utilizes a lock to ensure that only one thread can access the dictionary at a time. This means that if one client connection is in the middle of a transaction and has modified a key, any other client connection that tries to access the same key will be blocked until the transaction is committed or rolled back. Once the transaction is commited or rolled back, any changes will then be visible to other clients. 
 
-If the transaction is committed, the changes to the key will be persisted and will be visible to other clients immediately. If the transaction is rolled back, the key will be restored to its previous state and any changes made during the transaction will be discarded.
+  If the transaction is committed, the changes to the key will be persisted and will be visible to other clients immediately. If the transaction is rolled back, the key will be restored to its previous state and any changes made during the transaction will be discarded.
 
-It's important to note that the `InMemoryKeyValueStore` class does not support concurrent transactions that modify the same key. If two client connections try to start a transaction that modifies the same key at the same time, the second client connection will be blocked until the first transaction is committed or rolled back.
+  It's important to note that the `InMemoryKeyValueStore` class does not support concurrent transactions that modify the same key. If two client connections try to start a transaction that modifies the same key at the same time, the second client connection will be blocked until the first transaction is committed or rolled back.
 
-Additionally, the `InMemoryKeyValueStore` class does not support the concept of "dirty reads," which is when a client connection reads a key that is in the process of being modified by another client connection. If a client connection tries to read a key that is being modified by another client connection, it will be blocked until the modification is complete.
+  Additionally, the `InMemoryKeyValueStore` class does not support the concept of "dirty reads," which is when a client connection reads a key that is in the process of being modified by another client connection. If a client connection tries to read a key that is being modified by another client connection, it will be blocked until the modification is complete.
 
-Overall, the `InMemoryKeyValueStore` class is designed to ensure data consistency and prevent data corruption by using locks to control access to the dictionary and by not allowing concurrent transactions that modify the same key. This helps to ensure that the data in the store is always in a consistent state, even when multiple clients are accessing the store simultaneously.
+  Overall, the `InMemoryKeyValueStore` class is designed to ensure data consistency and prevent data corruption by using locks to control access to the dictionary and by not allowing concurrent transactions that modify the same key. This helps to ensure that the data in the store is always in a consistent state, even when multiple clients are accessing the store simultaneously.
 
--Q:  What is the role of the active_keys set?  It seems like it is only cleared when a transaction is committed so what happens when commands are run outside of a transaction?
+- Q:  What is the role of the active_keys set?  It seems like it is only cleared when a transaction is committed so what happens when commands are run outside of a transaction?
 
--A: The `active_keys` set is used to track the keys that are currently being modified during a transaction. When a key is added, updated, or deleted during a transaction, it is added to the `active_keys` set, which allows the class to keep track of which keys are being modified and to prevent other clients from modifying the same keys at the same time.
+- A: The `active_keys` set is used to track the keys that are currently being modified during a transaction. When a key is added, updated, or deleted during a transaction, it is added to the `active_keys` set, which allows the class to keep track of which keys are being modified and to prevent other clients from modifying the same keys at the same time.
 
-If commands are run outside of a transaction, the `active_keys` set is not used. This is because there is no need to track which keys are being modified, since there is no risk of data corruption or inconsistency.
+  If commands are run outside of a transaction, the `active_keys` set is not used. This is because there is no need to track which keys are being modified, since there is no risk of data corruption or inconsistency.
 
--Q: Other questions that come to mind are around performance bottlenecks given that you are saving to disk for every modification (not a requirement of the problem) and how you'll want to address those.  Would also look into event based IO vs. threading.
+- Q: Other questions that come to mind are around performance bottlenecks given that you are saving to disk for every modification (not a requirement of the problem) and how you'll want to address those.  Would also look into event based IO vs. threading.
 
--A: Yes, writing to disk would provide a performance bottleneck, especially if the store is being modified frequently. This was initially implemented to provide ease and repeatibility for testing, as well as state recovery for restarts. It can be removed and maintain the in-memory functionality.
+- A: Yes, writing to disk would provide a performance bottleneck, especially if the store is being modified frequently. This was initially implemented to provide ease and repeatibility for testing, as well as state recovery for restarts. It can be removed and maintain the in-memory functionality.
